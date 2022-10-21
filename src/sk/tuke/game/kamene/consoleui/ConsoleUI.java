@@ -33,7 +33,7 @@ public class ConsoleUI {
     }
 
     private void print() {
-        System.out.println(field.getState());
+        System.out.println(field.getState()+" "+field.getTimer());
 
         System.out.println();
         for (int row = 0; row < field.getRowCount(); row++) {
@@ -49,7 +49,7 @@ public class ConsoleUI {
     }
 
     private void processInput() {
-        System.out.println("Enter command (X - exit, OA1 - open, MB3 - mark: ");
+        System.out.println("Enter command (wasd or 'up','left','down','right' or x for exit)");
         String line = scanner.nextLine().toLowerCase().trim();
         if ("x".equals(line))
             System.exit(0);

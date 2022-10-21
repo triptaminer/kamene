@@ -1,7 +1,11 @@
 package sk.tuke.game.kamene.core;
 
+import java.security.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.lang.System.currentTimeMillis;
 
 public class Field {
     private final int rowCount;
@@ -12,14 +16,20 @@ public class Field {
 
     private final Map<String, Integer> tiles;
 
-    private int openCount;
+    private int userMoves;
+
+    private final long startTime;
+    private long actualTime;
 
     public Field(int rowCount, int columnCount) {
+        long timestamp = currentTimeMillis()/1000;
 
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         tiles = new HashMap<String, Integer>();
-        //tiles.put(rowCount+"x"+columnCount,new Tile());
+        userMoves=0;
+        startTime=timestamp;
+        actualTime=0;
         generate();
     }
 
@@ -37,20 +47,18 @@ public class Field {
             }
         }
         tiles.put((rowCount - 1) + "x" + (columnCount - 1), 0);
-    }
 
-    private int countNeighbourMines(int r, int c) {
-        int count = 0;
-        for (int i = r - 1; i <= r + 1; i++) {
-            for (int j = c - 1; j <= c + 1; j++) {
-                if (i >= 0 && i < rowCount && j >= 0 && j < columnCount) {
-                    count++;
-                }
-            }
-
+        //shuffle
+        int shuffleCount=150;
+        for (int i = 0; i < shuffleCount; i++) {
+            String[] empty=getEmpty().toString().replace("[","").replace("]","").split("x");
+            moveShuffle(Integer.parseInt(empty[0]),Integer.parseInt(empty[1]));
         }
-        return count;
+
+
+
     }
+
 
     public int getRowCount() {
         return rowCount;
@@ -78,46 +86,78 @@ public class Field {
     }
 
     public void moveTile(int row, int column, int direction) {
-        // Tile tile = getTile(row, column);
+        if(!move(row,column,direction)){
+            //TODO own exception
+            System.err.println("cannot move there!");
 
+        }
+        userMoves++;
+        updateTimer();
+        if (isSolved()) {
+            state = FieldState.SOLVED;
+            //finishTimer()
+        }
+    }
+
+    private void updateTimer() {
+        long current = currentTimeMillis()/1000;
+        actualTime+=current-startTime;
+    }
+    public String getTimer(){
+        String t= new SimpleDateFormat("D:HH-mm:ss").format(new Date(actualTime*1000));
+        String minutes=t.split("-")[1];
+        int days=Integer.parseInt(t.split("-")[0].split(":")[0])-1;
+        String daysText=days>0? days +"d ":"";
+
+        int hours=Integer.parseInt(t.split("-")[0].split(":")[1])-1;//FIXME locale/timezones?
+        String hoursText=hours>0? hours +":":"";
+        System.out.println(actualTime);
+        return daysText+hoursText+minutes;
+    }
+
+    public void moveShuffle(int row, int column) {
+        Random random=new Random();
+        boolean success=false;
+        do{
+            success=move(row,column,random.nextInt(4));
+        }
+        while(!success);
+    }
+    private boolean move(int row, int column, int direction){
         int r2 = 0;
         int c2 = 0;
 
         switch (direction) {
-            case 0:
+            case 0 -> {//up
                 r2 = row - 1;
                 c2 = column;
-                break;
-            case 1:
+            }
+            case 1 -> {//left
                 r2 = row;
                 c2 = column - 1;
-                break;
-            case 2:
+            }
+            case 2 -> {//down
                 r2 = row + 1;
                 c2 = column;
-                break;
-            case 3:
+            }
+            case 3 -> {//left
                 r2 = row;
                 c2 = column + 1;
-                break;
+            }
         }
 
-        swapTiles(row, column, r2, c2);
-
-
-        if (isSolved())
-            state = FieldState.SOLVED;
+        return swapTiles(row, column, r2, c2);
 
     }
 
-    private void swapTiles(int r1, int c1, int r2, int c2) {
-        if (isBetween(0, r1, rowCount) && isBetween(0, c1, columnCount)) {
+    private boolean swapTiles(int r1, int c1, int r2, int c2) {
+        if (isBetween(0, r2, rowCount) && isBetween(0, c2, columnCount)) {
             int tempValue = getTile(r1, c1);
             tiles.put(r1 + "x" + c1, getTile(r2, c2));
             tiles.put(r2 + "x" + c2, tempValue);
+            return true;
         } else {
-            //TODO own exception
-            System.err.println("cannot move there!");
+            return false;
         }
     }
 
