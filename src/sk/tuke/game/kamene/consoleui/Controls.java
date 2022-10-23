@@ -1,5 +1,6 @@
 package sk.tuke.game.kamene.consoleui;
 
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +20,10 @@ public class Controls {
     }
 
     public int translate(String input) {
-        return controls.get(input);
+        if(controls.get(input)!=null)
+            return controls.get(input);
+        else
+            return -1;
     }
 
 }

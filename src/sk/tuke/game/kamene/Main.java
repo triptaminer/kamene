@@ -1,13 +1,17 @@
 package sk.tuke.game.kamene;
 
 import sk.tuke.game.kamene.consoleui.ConsoleUI;
-import sk.tuke.game.kamene.core.Field;
+import sk.tuke.game.kamene.core.Game;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-        Field field = new Field(4, 4);
-        ConsoleUI ui = new ConsoleUI(field);
-        ui.play();
+        Game game = new Game();
+        ConsoleUI ui = new ConsoleUI(game);
+//        ui.playGame();
+        ui.Menu();
     }
 }

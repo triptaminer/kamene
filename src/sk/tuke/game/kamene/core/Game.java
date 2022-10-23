@@ -1,16 +1,17 @@
 package sk.tuke.game.kamene.core;
 
-import java.security.Timestamp;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.System.currentTimeMillis;
 
-public class Field {
-    private final int rowCount;
+public class Game {
+    private int rowCount;
 
-    private final int columnCount;
+    private int columnCount;
 
     private FieldState state = FieldState.PLAYING;
 
@@ -19,18 +20,34 @@ public class Field {
     private int userMoves;
 
     private final long startTime;
+
+    public int getActualTime() {
+        return (int) actualTime;
+    }
+
     private long actualTime;
 
-    public Field(int rowCount, int columnCount) {
+    private int category;
+
+    public HiScores scores;
+
+public void setGameProperties(int rowCount, int columnCount, int category){
+    this.rowCount = rowCount;
+    this.columnCount = columnCount;
+    this.category=category;
+
+    generate();
+}
+
+    public Game() {
         long timestamp = currentTimeMillis()/1000;
 
-        this.rowCount = rowCount;
-        this.columnCount = columnCount;
         tiles = new HashMap<String, Integer>();
         userMoves=0;
         startTime=timestamp;
         actualTime=0;
-        generate();
+        //scores=new HiScores();
+
     }
 
     private void generate() {
@@ -79,8 +96,6 @@ public class Field {
             return tiles.get(row + "x" + column);
         }
         else{
-            //TODO outOfBounds
-            System.out.println(row +"/"+ rowCount+"x" + column+"/"+columnCount+" not exist!");
             return 0;
         }
     }
@@ -101,7 +116,7 @@ public class Field {
 
     private void updateTimer() {
         long current = currentTimeMillis()/1000;
-        actualTime+=current-startTime;
+        actualTime=current-startTime;
     }
     public String getTimer(){
         String t= new SimpleDateFormat("D:HH-mm:ss").format(new Date(actualTime*1000));
@@ -109,9 +124,9 @@ public class Field {
         int days=Integer.parseInt(t.split("-")[0].split(":")[0])-1;
         String daysText=days>0? days +"d ":"";
 
-        int hours=Integer.parseInt(t.split("-")[0].split(":")[1])-1;//FIXME locale/timezones?
+        int hours=Integer.parseInt(t.split("-")[0].split(":")[1])-1;//FIXME later: locale/timezones?
         String hoursText=hours>0? hours +":":"";
-        System.out.println(actualTime);
+
         return daysText+hoursText+minutes;
     }
 
@@ -174,7 +189,7 @@ public class Field {
                 }
             }
         }
-        System.out.println(totalCount + "=" + rowCount + "*" + columnCount);
+ //       System.out.println(totalCount + "=" + rowCount + "*" + columnCount);
         return totalCount == rowCount * columnCount;
     }
 
@@ -188,5 +203,9 @@ public class Field {
                 .filter(entry -> Objects.equals(entry.getValue(), value))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
+    }
+
+    public int getCategory() {
+        return category;
     }
 }
