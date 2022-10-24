@@ -10,8 +10,12 @@ ide:
 - navigacia v menu (par problemov)
 
 
-  nejde (pre moju unavu):
-- hiscores cast ( privelka unava, zamotal som sa v kolekciach)
+nejde (pre moju unavu):
 - vlastna vynimka (unava)
+
+nejde **(opravene v branch: late)**
+- hiscores cast ( privelka unava, zamotal som sa v kolekciach) 
+
+
 
 commity po termine budem davat do branche late
