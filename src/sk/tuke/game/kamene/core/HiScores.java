@@ -7,52 +7,50 @@ import java.util.*;
 
 public class HiScores {
 
-    //private Map<Integer, String>[] scores= (Map<Integer, String>[]) new Array[3];
-    //private List<Map<String,Integer>> scores = new HashMap<Map<String,Integer>>();
-    Collection<Map<Integer,String>> scores = new TreeSet<Map<Integer,String>>();
+    List<Map<Integer,String>> scores ;
     public HiScores() throws IOException {
-        //scores = new TreeMap<Integer, String>[]{};
-        //loadScores();
+        scores = new ArrayList<>();
+        loadScores();
     }
 
     public void saveScore(int category, String name, int time) {
-        scores.add(new HashMap<Integer,String >());
-
+        scores.get(category).put(time,name);
     }
 
+    //TODO split to separate class (or inteface to support some sql engine later?)
     public void loadScores() throws IOException {
         File f = new File("scores.csv");
 //TODO fix fileNotFound
         Scanner reader = new Scanner(f);
-        String t[]= new String[3];
+
+        //3 normal categories,1 custom
+        scores.add(new TreeMap<>());
+        scores.add(new TreeMap<>());
+        scores.add(new TreeMap<>());
+        scores.add(new TreeMap<>());
+
         while (reader.hasNextLine()) {
             String[] data = reader.nextLine().split("\\|");
-            System.out.println(data);
-            t[Integer.parseInt(data[0])]=data[1]+"|"+data[2];
-        }
-        for (int i = 0; i < 3; i++) {
-            Map<Integer,String> category = new HashMap<>();
-            for (String c : t) {
-                category.put(Integer.parseInt(c.split("\\|")[0]),c.split("\\|")[1]);
-            }
-            scores.add(category);
+            scores.get(Integer.parseInt(data[0])).put(Integer.parseInt(data[2]),data[1]);
         }
         reader.close();
     }
 
     public void saveScores() throws IOException {
         StringBuilder content = new StringBuilder();
-        for (int i = 0; i < 3; i++) {
-
-
-
-            for (Object item : scores.toArray()) {
-//                content.append(i + "|" + item.getKey() + "|" + item.getValue() + "|" + "\n");
-            }
+        for (int i = 0; i < scores.size(); i++) {
+            int finalI = i;
+            scores.get(i).forEach((integer, s) ->{
+                content.append(finalI + "|" + s + "|" + integer + "\n");
+            });
         }
+
         FileWriter fp = new FileWriter("scores.csv");
         fp.write(content.toString());
         fp.close();
     }
 
+    public Map<Integer, String> getHiScores(int i) {
+        return scores.get(i);
+    }
 }
